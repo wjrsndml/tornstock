@@ -1,0 +1,15 @@
+# 虚拟环境
+.venv/
+
+# 中间分块文件（断点续传用，不需要追踪）
+data/chunks/
+
+# 运行时文件
+data/progress.json
+data/fetch.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
