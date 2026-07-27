@@ -29,9 +29,18 @@
 ```
 tornstock/
 ├── README.md                # 本文件
+├── REPORT.md                # ★ 量化研究报告（策略结论与收益率分析）
 ├── requirements.txt         # Python 依赖
 ├── fetch_m1_data.py         # 数据抓取脚本（支持断点续传、10 并发）
+├── monitor.py               # 盯盘提醒脚本（抄底/止盈信号，手动下单）
 ├── stocks.txt               # 游戏内股票背景故事的完整原文
+├── analysis/                # ★ 量化分析脚本
+│   ├── common.py            # 数据加载/重采样/常量
+│   ├── 01_stats.py          # 统计特征（自相关、季节性、波动率）
+│   ├── 02_demand.py         # total_shares 变动信号检验
+│   ├── 03_backtest.py       # 策略回测（含 0.1% 卖出税，样本内外划分）
+│   ├── 04_dividends.py      # 权益块分红 ROI 排名
+│   └── output/              # 分析结果（已 gitignore）
 ├── .gitignore               # 已排除 .venv、chunks/、日志等
 └── data/
     ├── merged/              # ★ 最终合并后的数据文件
@@ -447,7 +456,41 @@ python fetch_m1_data.py --concurrency 20 --rate 20
 
 ---
 
-## 9. 致谢
+## 9. 量化分析与盯盘
+
+基于本数据集的完整研究结论（收益率来源、可交易策略、权益块 ROI 排名）见 **[REPORT.md](REPORT.md)**。
+
+```bash
+# 复现分析（输出到 analysis/output/）
+python analysis/01_stats.py       # 统计特征：自相关、季节性、波动率
+python analysis/02_demand.py      # total_shares 资金流信号检验（1h 尺度）
+python analysis/03_backtest.py    # 单股波段回测（含 0.1% 卖出税、样本内外划分）
+python analysis/04_dividends.py   # 权益块分红 ROI 排名（物品估值见脚本内 ITEM_VALUES）
+python analysis/05_factors.py     # 因子 IC 研究（16 指标 × 5 前瞻窗口）
+python analysis/06_rotation.py    # 跨股轮动回测（日线，共享资金池）
+python analysis/07_hourly.py      # 跨股轮动回测（小时级执行）
+python analysis/08_oracle.py      # 全知者收益上限（DP 精确求解，分钟级）
+python analysis/09_ml.py          # ML walk-forward 实证（能否逼近全知者）
+python analysis/10_factory.py     # 简单策略工厂（1242 种"买跌"类组合批量回测）
+python analysis/11_predictability.py  # 分钟级波动不可预测性统计检验
+python analysis/12_daily_oracle.py    # 日线全知者：每天一次完美择时的上限（含未来函数）
+python analysis/13_oracle_decompose.py    # 全知者收益拆解：选股/择时/方向各值多少（含噪声敏感性）
+python analysis/14_range_capture.py       # 波动排名可预测性验证 + 现实日内抄底策略（18 组参数）
+python analysis/15_direction_sweep.py     # 方向准确率门槛扫描 + 限价抄底持有多日变体
+python analysis/16_aggressive.py      # 进攻性参数搜索(五杠杆 737 组,测 70-80% 目标)
+python analysis/17_structural.py      # 结构实验:满仓轮换 / 波动过滤 / 持仓量事件研究
+python analysis/18_whale_follow.py    # 巨鲸资金流:事件研究 / 跟单回测 54 组 / 排序权重实验
+python analysis/19_whale_size.py      # 巨鲸体量分档校准($ 流分布、尖峰归因、单笔收益测算)
+
+# 盯盘提醒（每分钟轮询，抄底/止盈信号，仅提醒不自动下单）
+python monitor.py                        # 盯全部 35 股
+python monitor.py --stocks SYM,FHG       # 只盯指定股票
+python monitor.py reset SYM              # 手动平仓后重置某股状态
+```
+
+---
+
+## 10. 致谢
 
 - 数据来源：[tornsy.com](https://tornsy.com/api) — 免费、无需 API Key 的公开 API
 - 游戏：[Torn City](https://www.torn.com/)

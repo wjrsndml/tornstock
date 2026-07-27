@@ -13,3 +13,6 @@ __pycache__/
 *.pyc
 *.pyo
 .DS_Store
+
+# 分析输出
+analysis/output/
